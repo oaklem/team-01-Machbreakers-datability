@@ -49,7 +49,7 @@ export const DEFAULT_FILTERS: Filters = {
   delayCause: "",
   haul: "all",
   status: "all",
-  sort: "risk-desc",
+  sort: "std-asc",
   depWindow: "all",
   dayOfWeek: "all",
   windGust: "all",
@@ -164,12 +164,15 @@ export function FiltersBar({
           {delayCauseOptions.map((c) => (<option key={c} value={c}>{CAUSE_LABEL[c] ?? c}</option>))}
         </select>
 
-        <select value={filters.sort} onChange={(e) => set("sort", e.target.value as SortKey)} className={selectClass}>
-          <option value="risk-desc">Sort: highest severity</option>
-          <option value="delay-desc">Sort: longest delay</option>
-          <option value="std-asc">Sort: earliest STD</option>
-          <option value="distance-desc">Sort: longest distance</option>
-        </select>
+        <div className="ml-auto flex items-center gap-2 pl-2 border-l border-white/10">
+          <span className="text-[10px] uppercase tracking-widest text-white/40">Sort</span>
+          <select value={filters.sort} onChange={(e) => set("sort", e.target.value as SortKey)} className={selectClass}>
+            <option value="risk-desc">Highest severity</option>
+            <option value="delay-desc">Longest delay</option>
+            <option value="std-asc">Earliest STD</option>
+            <option value="distance-desc">Longest distance</option>
+          </select>
+        </div>
 
         <button
           type="button"

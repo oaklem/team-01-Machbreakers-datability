@@ -214,3 +214,24 @@ html.light-mode .bg-\[\#ffffff20\] { background-color: rgba(11, 22, 40, 0.1) !im
 html.light-mode .shadow-2xl {
   box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.15) !important;
 }
+
+/* Gradient stops used on dark surfaces (e.g. AirportSummary card) */
+html.light-mode .from-\[\#0E1B33\],
+html.light-mode .from-\[\#0F1D33\],
+html.light-mode .from-\[\#13294A\] {
+  --tw-gradient-from: #ffffff !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255,255,255,0)) !important;
+}
+html.light-mode .to-\[\#0A1426\],
+html.light-mode .to-\[\#081020\],
+html.light-mode .to-\[\#0B1628\] {
+  --tw-gradient-to: #f1f5f9 !important;
+  --tw-gradient-stops: var(--tw-gradient-from, rgba(255,255,255,0)), var(--tw-gradient-to) !important;
+}
+
+/* Translucent white surfaces used for stat chips */
+html.light-mode .bg-white\/\[0\.03\],
+html.light-mode .bg-white\/\[0\.05\],
+html.light-mode .bg-white\/\[0\.02\] {
+  background-color: rgba(11, 22, 40, 0.04) !important;
+}

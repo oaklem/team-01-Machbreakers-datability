@@ -11,6 +11,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addRegisterItem } from "@/lib/register.functions";
 import {
   CLOSURE_REFS,
   formatRemaining,
@@ -36,7 +39,7 @@ const STANDS: Stand[] = [
   { id: "A11", terminal: "A", x: 18, y: 14, taxiTimeMin: 8, flexible: true, remoteBus: false, available: true },
   { id: "A23", terminal: "A", x: 28, y: 18, taxiTimeMin: 9, flexible: true, remoteBus: false, available: true },
   { id: "B14", terminal: "B", x: 44, y: 30, taxiTimeMin: 11, flexible: false, remoteBus: false, available: true },
-  { id: "B22", terminal: "B", x: 52, y: 34, taxiTimeMin: 12, flexible: false, remoteBus: false, available: false },
+  { id: "B22", terminal: "B", x: 52, y: 8, taxiTimeMin: 12, flexible: false, remoteBus: false, available: false },
   { id: "B30", terminal: "B", x: 58, y: 38, taxiTimeMin: 13, flexible: true, remoteBus: false, available: true },
   { id: "C14", terminal: "C", x: 70, y: 26, taxiTimeMin: 14, flexible: true, remoteBus: false, available: true },
   { id: "C20", terminal: "C", x: 76, y: 22, taxiTimeMin: 15, flexible: true, remoteBus: false, available: true },
@@ -135,6 +138,12 @@ export function TaxiPathPanel({ flight }: { flight: Flight }) {
   const closures = useClosures();
   const suggestions = useMemo(() => suggestGates(flight), [flight]);
   const [selectedId, setSelectedId] = useState<string>(suggestions[0]?.stand.id ?? "");
+  const addItem = useServerFn(addRegisterItem);
+  const qc = useQueryClient();
+  const logGateChange = useMutation({
+    mutationFn: addItem,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["register-items"] }),
+  });
   const bucket = getRiskBucket(flight.risk);
   const selected = suggestions.find((s) => s.stand.id === selectedId) ?? suggestions[0];
   const currentStand = STANDS.find((s) => s.id === flight.gate);
@@ -445,14 +454,38 @@ export function TaxiPathPanel({ flight }: { flight: Flight }) {
           </div>
           <button
             type="button"
-            onClick={() =>
-              toast.success(`Gate reassignment requested: ${flight.gate} → ${selected.stand.id}`, {
-                description: `${flight.flightNumber} — coordinated with apron control.`,
-              })
-            }
-            className="text-xs px-3 py-1.5 rounded-md bg-sky-500 hover:bg-sky-400 text-sky-950 font-medium"
+            disabled={logGateChange.isPending}
+            onClick={() => {
+              const fromGate = flight.gate;
+              const toGate = selected.stand.id;
+              logGateChange.mutate(
+                {
+                  data: {
+                    flight_id_ref: flight.id,
+                    flight_number: flight.flightNumber,
+                    flight_origin: flight.origin,
+                    flight_destination: flight.destination,
+                    action_id: `gate-change-${flight.id}-${Date.now()}`,
+                    action_title: `Gate change ${fromGate} → ${toGate}`,
+                    action_description: `${flight.flightNumber} reassigned from gate ${fromGate} to ${toGate} (terminal ${selected.stand.terminal}, ~${selected.stand.taxiTimeMin} min taxi). Rationale: ${selected.rationale.join("; ") || "operator request"}.`,
+                    action_level: "act",
+                  },
+                },
+                {
+                  onSuccess: () =>
+                    toast.success(`Gate reassignment logged: ${fromGate} → ${toGate}`, {
+                      description: `${flight.flightNumber} — added to Activity Log.`,
+                    }),
+                  onError: (err) =>
+                    toast.error("Failed to log gate change", {
+                      description: err instanceof Error ? err.message : String(err),
+                    }),
+                },
+              );
+            }}
+            className="text-xs px-3 py-1.5 rounded-md bg-sky-500 hover:bg-sky-400 disabled:opacity-60 text-sky-950 font-medium"
           >
-            Request reassignment
+            {logGateChange.isPending ? "Logging…" : "Request reassignment"}
           </button>
         </div>
       )}

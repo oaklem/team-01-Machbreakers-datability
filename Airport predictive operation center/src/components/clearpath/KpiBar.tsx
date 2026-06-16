@@ -1,14 +1,14 @@
-import { AlertTriangle, Activity, Timer, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Activity, Plane, ShieldAlert } from "lucide-react";
 import { InfoTip } from "./InfoTip";
 
 interface Props {
   highRisk: number;
   exposure: number;
-  avgProp: number;
+  departuresNextHour: number;
   atcRestrictions: number;
 }
 
-export function KpiBar({ highRisk, exposure, avgProp, atcRestrictions }: Props) {
+export function KpiBar({ highRisk, exposure, departuresNextHour, atcRestrictions }: Props) {
   const tiles = [
     {
       label: "Flights at high delay severity",
@@ -27,15 +27,15 @@ export function KpiBar({ highRisk, exposure, avgProp, atcRestrictions }: Props) 
       tip: "Number of follow-on flights (same aircraft or crew) likely to be affected if today's high-severity flights slip.",
     },
     {
-      label: "Avg delay propagation",
-      value: avgProp,
-      suffix: "min",
-      color: "#F59E0B",
-      Icon: Timer,
-      tip: "Average minutes of expected delay across today's tracked departures.",
+      label: "Departures next hour",
+      value: departuresNextHour,
+      suffix: "flights",
+      color: "#38BDF8",
+      Icon: Plane,
+      tip: "Number of flights scheduled to depart within the next 60 minutes (local airport time).",
     },
     {
-      label: "Active ATC restrictions",
+      label: "Active NOTAPs",
       value: atcRestrictions,
       suffix: "programs in effect",
       color: "#38BDF8",
@@ -45,28 +45,28 @@ export function KpiBar({ highRisk, exposure, avgProp, atcRestrictions }: Props) 
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {tiles.map((t) => (
         <div
           key={t.label}
-          className="rounded-xl border border-white/10 bg-[#0F1D33] p-5 flex items-center gap-4"
+          className="rounded-xl border border-white/10 bg-[#0F1D33] p-3.5 flex items-center gap-3"
         >
           <div
-            className="h-12 w-12 rounded-lg grid place-items-center shrink-0"
+            className="h-10 w-10 rounded-lg grid place-items-center shrink-0"
             style={{ backgroundColor: `${t.color}22`, color: t.color }}
           >
-            <t.Icon className="h-6 w-6" />
+            <t.Icon className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-widest text-white/40 flex items-center gap-1.5">
+            <div className="text-[10px] uppercase tracking-widest text-white/40 flex items-center gap-1">
               {t.label}
               <InfoTip label={t.label}>{t.tip}</InfoTip>
             </div>
-            <div className="flex items-baseline gap-2 mt-1">
-              <div className="text-3xl font-bold tabular-nums" style={{ color: t.color }}>
+            <div className="flex items-baseline gap-1.5 mt-0.5">
+              <div className="text-2xl font-bold tabular-nums" style={{ color: t.color }}>
                 {t.value}
               </div>
-              {t.suffix && <div className="text-xs text-white/50">{t.suffix}</div>}
+              {t.suffix && <div className="text-[11px] text-white/50">{t.suffix}</div>}
             </div>
           </div>
         </div>

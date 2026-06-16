@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -8,13 +8,12 @@ import {
   deleteRegisterItem,
   type RegisterItem,
 } from "@/lib/register.functions";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle2, RotateCcw, Trash2, ClipboardList, LogOut } from "lucide-react";
+import { ArrowLeft, CheckCircle2, RotateCcw, Trash2, ClipboardList } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/register")({
+export const Route = createFileRoute("/register")({
   head: () => ({
-    meta: [{ title: "APOC Decision Register — ClearPath OPS" }],
+    meta: [{ title: "Activity Log — ClearPath OPS" }],
   }),
   component: RegisterPage,
 });
@@ -29,7 +28,6 @@ const LEVEL_STYLES: Record<RegisterItem["action_level"], string> = {
 
 function RegisterPage() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("open");
 
   const list = useServerFn(listRegisterItems);
@@ -63,12 +61,6 @@ function RegisterPage() {
     all: items.length,
   };
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    queryClient.clear();
-    navigate({ to: "/auth", replace: true });
-  }
-
   return (
     <div className="min-h-screen bg-[#0B1628] text-white">
       <header className="border-b border-white/5 bg-[#081020]/60 backdrop-blur px-6 py-5">
@@ -78,7 +70,7 @@ function RegisterPage() {
               <ClipboardList className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold">APOC Decision Register</h1>
+              <h1 className="text-lg font-semibold">Activity Log</h1>
               <p className="text-xs text-white/50">
                 Shared queue of queued actions across the operations team
               </p>
@@ -91,15 +83,10 @@ function RegisterPage() {
             >
               <ArrowLeft className="h-4 w-4" /> Dashboard
             </Link>
-            <button
-              onClick={signOut}
-              className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-3 py-1.5 rounded-md border border-white/10 hover:bg-white/5"
-            >
-              <LogOut className="h-4 w-4" /> Sign out
-            </button>
           </div>
         </div>
       </header>
+
 
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-4">
         <div className="grid grid-cols-3 gap-3">

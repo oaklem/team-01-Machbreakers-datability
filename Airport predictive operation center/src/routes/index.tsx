@@ -232,15 +232,32 @@ function Dashboard() {
   const selected = FLIGHTS.find((f) => f.id === selectedId) ?? FLIGHTS[0];
   const drawerFlight = FLIGHTS.find((f) => f.id === drawerFlightId) ?? null;
 
-  const highRisk = FLIGHTS.filter((f) => f.risk >= 60).length;
-  const exposure = FLIGHTS.reduce(
+  // KPI tiles reflect the first 100 flights by STD (earliest scheduled departures)
+  const kpiFlights = useMemo(
+    () => [...FLIGHTS].sort((a, b) => a.std.localeCompare(b.std)).slice(0, 100),
+    [FLIGHTS],
+  );
+
+  const highRisk = kpiFlights.filter((f) => f.risk >= 60).length;
+  const exposure = kpiFlights.reduce(
     (acc, f) => acc + f.rotation.filter((l) => l.downstreamDelay > 0).length,
     0,
   );
-  const avgProp = Math.round(
-    FLIGHTS.reduce((acc, f) => acc + f.estDelay, 0) / FLIGHTS.length,
-  );
-  const atcRestrictions = FLIGHTS.reduce((acc, f) => acc + f.atc.restrictions.length, 0);
+  const departuresNextHour = useMemo(() => {
+    const nowChi = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }),
+    );
+    const nowMin = nowChi.getHours() * 60 + nowChi.getMinutes();
+    return kpiFlights.filter((f) => {
+      if (f.cancelled) return false;
+      const [hh, mm] = f.std.split(":").map(Number);
+      if (Number.isNaN(hh) || Number.isNaN(mm)) return false;
+      const t = hh * 60 + mm;
+      const diff = (t - nowMin + 1440) % 1440;
+      return diff >= 0 && diff <= 60;
+    }).length;
+  }, [kpiFlights]);
+  const atcRestrictions = kpiFlights.reduce((acc, f) => acc + f.atc.restrictions.length, 0);
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -250,11 +267,13 @@ function Dashboard() {
             <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
               <div className="flex items-center gap-4">
                 <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 grid place-items-center shrink-0">
-                  <Plane className="h-5 w-5 text-white" />
+                  <svg fill="currentColor" className="h-5 w-5 text-white" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 0.99804688L8 4.9980469L5 4.9980469 A 1.0001 1.0001 0 0 0 4 5.9980469L4 8.9980469 A 1.0001 1.0001 0 0 0 4.1679688 9.5527344L5.1308594 10.998047L5 10.998047 A 1.0001 1.0001 0 0 0 4 11.998047L4 18.998047L3 18.998047 A 1.0001 1.0001 0 0 0 2 19.998047L2 28.998047 A 1.0001 1.0001 0 0 0 3 29.998047L29.017578 29.998047 A 1.0001 1.0001 0 0 0 30.017578 28.998047L30.017578 19.998047 A 1.0001 1.0001 0 0 0 29.017578 18.998047L14 18.998047L14 11.998047 A 1.0001 1.0001 0 0 0 13 10.998047L12.869141 10.998047L13.832031 9.5527344 A 1.0001 1.0001 0 0 0 14 8.9980469L14 5.9980469 A 1.0001 1.0001 0 0 0 13 4.9980469L10 4.9980469L10 0.99804688L8 0.99804688 z M 20.255859 1.9980469L24.025391 5.7480469L22.501953 6.5820312C22.42144 6.6262379 22.362163 6.6936181 22.298828 6.7558594L19 6.171875L21.214844 8.4472656L21.695312 11.671875L23.140625 8.5058594C23.228409 8.4874455 23.316052 8.461384 23.400391 8.4160156L24.917969 7.5859375L25.644531 12.998047L27.736328 6.0449219L29.472656 5.09375C29.951656 4.83075 30.138625 4.2081719 29.890625 3.7011719C29.642625 3.1951719 29.055219 2.9957656 28.574219 3.2597656L26.837891 4.2089844L20.255859 1.9980469 z M 6 6.9980469L12 6.9980469L12 8.6953125L10.464844 10.998047L7.5351562 10.998047L6 8.6953125L6 6.9980469 z M 6 12.998047L7 12.998047L11 12.998047L12 12.998047L12 18.998047L6 18.998047L6 12.998047 z M 4 20.998047L28.017578 20.998047L28.017578 27.998047L26 27.998047L26 22.998047L23 22.998047L23 27.998047L4 27.998047L4 20.998047 z M 6 22.998047L6 24.998047L12 24.998047L12 22.998047L6 22.998047 z M 15 22.998047L15 24.998047L21 24.998047L21 22.998047L15 22.998047 z" />
+                  </svg>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sky-400 text-[11px] uppercase tracking-widest font-bold bg-sky-500/10 px-2 py-0.5 rounded">AI OPS</span>
+                    <span className="text-sky-400 text-[11px] uppercase tracking-widest font-bold bg-sky-500/10 px-2 py-0.5 rounded">APOC HERO</span>
                     <span className="text-white/20 font-light">|</span>
                     <h1 className="text-xl font-semibold tracking-tight">
                       {data.airport ?? "—"} · Operations Delay Severity Overview
@@ -282,7 +301,7 @@ function Dashboard() {
                   to="/register"
                   className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-3 py-1.5 rounded-md border border-white/10 hover:bg-white/5"
                 >
-                  <ClipboardList className="h-4 w-4" /> Register
+                  <ClipboardList className="h-4 w-4" /> Activity log
                 </Link>
                 <ThemeToggle />
               </div>
@@ -299,7 +318,7 @@ function Dashboard() {
             <KpiBar
               highRisk={highRisk}
               exposure={exposure}
-              avgProp={avgProp}
+              departuresNextHour={departuresNextHour}
               atcRestrictions={atcRestrictions}
             />
           </header>

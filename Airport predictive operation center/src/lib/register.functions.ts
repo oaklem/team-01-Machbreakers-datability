@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export interface RegisterItem {
   id: string;
@@ -20,8 +19,12 @@ export interface RegisterItem {
   updated_at: string;
 }
 
+async function getAdmin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
+}
+
 export const addRegisterItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: {
     flight_id_ref: string;
     flight_number: string;
@@ -32,10 +35,11 @@ export const addRegisterItem = createServerFn({ method: "POST" })
     action_description: string;
     action_level: "monitor" | "prepare" | "act";
   }) => input)
-  .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase
+  .handler(async ({ data }) => {
+    const admin = await getAdmin();
+    const { data: row, error } = await admin
       .from("register_items")
-      .insert({ ...data, created_by: context.userId })
+      .insert({ ...data, created_by: null })
       .select()
       .single();
     if (error) throw new Error(error.message);
@@ -43,10 +47,10 @@ export const addRegisterItem = createServerFn({ method: "POST" })
   });
 
 export const listRegisterItems = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: { status?: "open" | "done" } | undefined) => input ?? {})
-  .handler(async ({ data, context }) => {
-    let q = context.supabase.from("register_items").select("*").order("created_at", { ascending: false });
+  .handler(async ({ data }) => {
+    const admin = await getAdmin();
+    let q = admin.from("register_items").select("*").order("created_at", { ascending: false });
     if (data.status) q = q.eq("status", data.status);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
@@ -54,14 +58,14 @@ export const listRegisterItems = createServerFn({ method: "GET" })
   });
 
 export const updateRegisterItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: {
     id: string;
     status?: "open" | "done";
     assignee?: string | null;
     notes?: string | null;
   }) => input)
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
+    const admin = await getAdmin();
     const patch: {
       status?: "open" | "done";
       completed_at?: string | null;
@@ -75,7 +79,7 @@ export const updateRegisterItem = createServerFn({ method: "POST" })
     if (data.assignee !== undefined) patch.assignee = data.assignee;
     if (data.notes !== undefined) patch.notes = data.notes;
 
-    const { data: row, error } = await context.supabase
+    const { data: row, error } = await admin
       .from("register_items")
       .update(patch)
       .eq("id", data.id)
@@ -86,10 +90,10 @@ export const updateRegisterItem = createServerFn({ method: "POST" })
   });
 
 export const deleteRegisterItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("register_items").delete().eq("id", data.id);
+  .handler(async ({ data }) => {
+    const admin = await getAdmin();
+    const { error } = await admin.from("register_items").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

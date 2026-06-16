@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Thermometer, Wind, Eye, Gauge, Droplets, Cloud, MapPin, AlertTriangle, CloudFog, CloudSnow, CloudRain, Snowflake } from "lucide-react";
+import { Thermometer, Wind, Eye, Gauge, Droplets, Cloud, MapPin, AlertTriangle, CloudFog, CloudSnow, CloudRain, Snowflake, ChevronDown } from "lucide-react";
 import type { LiveWeather } from "@/lib/flights.functions";
 
 function wxLabel(code: number | null | undefined): string {
@@ -47,6 +47,7 @@ export function AirportSummary({
   weather: LiveWeather | null;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     setMounted(true);
@@ -126,109 +127,127 @@ export function AirportSummary({
   );
 
   return (
-    <div className="rounded-lg border border-white/10 bg-gradient-to-br from-[#0E1B33] to-[#0A1426] p-3">
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-3 pr-4 border-r border-white/10">
-          <div className="h-11 w-11 rounded-md bg-gradient-to-br from-sky-500/30 to-indigo-600/30 border border-sky-400/30 grid place-items-center">
-            <MapPin className="h-5 w-5 text-sky-300" />
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-white leading-none tracking-tight">{airport}</div>
-            <div className="text-[11px] text-white/50 mt-1">{city}</div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1 pr-4 border-r border-white/10">
-          <div className="text-[9px] uppercase tracking-widest text-white/40 leading-none">Local Time</div>
-          <div className="font-mono text-lg font-bold text-white tabular-nums leading-tight">{localTime}</div>
-        </div>
-
-        <div className="flex flex-col gap-1 pr-4 border-r border-white/10">
-          <div className="text-[9px] uppercase tracking-widest text-white/40 leading-none">Zulu Time</div>
-          <div className="font-mono text-lg font-bold text-sky-400 tabular-nums leading-tight">{zulu}</div>
-        </div>
-
-        <div className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-md border ${cat.cls} min-w-[78px]`}>
-          <div className="text-[9px] uppercase tracking-widest opacity-70 leading-none">Flight cat</div>
-          <div className="text-base font-bold tabular-nums leading-tight mt-0.5">{cat.code}</div>
-          <div className="text-[9px] opacity-70 leading-none">{cat.label}</div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
-          {stat(
-            <Thermometer className="h-4 w-4" />,
-            "Temp",
-            weather?.temp_c != null ? `${Math.round(weather.temp_c)}°` : "—",
-            "C",
-          )}
-          {stat(
-            <Wind className="h-4 w-4" />,
-            "Wind",
-            weather?.wind_speed_kmh != null
-              ? `${compass(weather.wind_direction_deg)} ${Math.round(toKt(weather.wind_speed_kmh))}`
-              : "—",
-            gustKt != null && windKt != null && gustKt > windKt + 3
-              ? `G${Math.round(gustKt)}kt`
-              : "kt",
-          )}
-          {stat(
-            <Eye className="h-4 w-4" />,
-            "Visibility",
-            visKm ?? "—",
-            "km",
-          )}
-          {stat(
-            <Cloud className="h-4 w-4" />,
-            "Sky",
-            wxLabel(weather?.weather_code),
-            weather?.cloud_cover_pct != null ? `${Math.round(weather.cloud_cover_pct)}%` : undefined,
-          )}
-          {weather?.dew_point_c != null && stat(
-            <CloudFog className="h-4 w-4" />,
-            "Dew pt",
-            `${Math.round(weather.dew_point_c)}°`,
-            dewSpread != null ? `Δ${dewSpread.toFixed(1)}` : "C",
-          )}
-          {weather?.humidity_pct != null && stat(
-            <Droplets className="h-4 w-4" />,
-            "Humidity",
-            `${Math.round(weather.humidity_pct)}`,
-            "%",
-          )}
-          {weather?.precipitation_probability_pct != null && stat(
-            <CloudRain className="h-4 w-4" />,
-            "Precip prob",
-            `${Math.round(weather.precipitation_probability_pct)}`,
-            "%",
-          )}
-          {weather?.pressure_hpa != null && stat(
-            <Gauge className="h-4 w-4" />,
-            "QNH",
-            `${Math.round(weather.pressure_hpa)}`,
-            "hPa",
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 text-[10px] text-emerald-400 ml-auto">
+    <div className="rounded-lg border border-white/10 bg-gradient-to-br from-[#0E1B33] to-[#0A1426]">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-white/[0.02] transition-colors rounded-lg"
+      >
+        <MapPin className="h-4 w-4 text-sky-300 shrink-0" />
+        <span className="text-sm font-semibold text-white">Local details</span>
+        <span className="text-[11px] text-white/50">{airport} · {city}</span>
+        <span className={`ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-bold ${cat.cls}`}>
+          {cat.code}
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] text-emerald-400">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="uppercase tracking-widest">Live · {weather?.source ?? "—"}</span>
-        </div>
-      </div>
+          <span className="uppercase tracking-widest">Live</span>
+        </span>
+        <ChevronDown className={`h-4 w-4 text-white/50 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
 
-      {alerts.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-white/40">
-            <AlertTriangle className="h-3 w-3" /> Ops alerts
+      {open && (
+        <div className="px-3 pb-3 pt-1 border-t border-white/5">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-3 pr-4 border-r border-white/10">
+              <div className="h-11 w-11 rounded-md bg-gradient-to-br from-sky-500/30 to-indigo-600/30 border border-sky-400/30 grid place-items-center">
+                <MapPin className="h-5 w-5 text-sky-300" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white leading-none tracking-tight">{airport}</div>
+                <div className="text-[11px] text-white/50 mt-1">{city}</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1 pr-4 border-r border-white/10">
+              <div className="text-[9px] uppercase tracking-widest text-white/40 leading-none">Local Time</div>
+              <div className="font-mono text-lg font-bold text-white tabular-nums leading-tight">{localTime}</div>
+            </div>
+
+            <div className="flex flex-col gap-1 pr-4 border-r border-white/10">
+              <div className="text-[9px] uppercase tracking-widest text-white/40 leading-none">Zulu Time</div>
+              <div className="font-mono text-lg font-bold text-sky-400 tabular-nums leading-tight">{zulu}</div>
+            </div>
+
+            <div className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-md border ${cat.cls} min-w-[78px]`}>
+              <div className="text-[9px] uppercase tracking-widest opacity-70 leading-none">Flight cat</div>
+              <div className="text-base font-bold tabular-nums leading-tight mt-0.5">{cat.code}</div>
+              <div className="text-[9px] opacity-70 leading-none">{cat.label}</div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
+              {stat(
+                <Thermometer className="h-4 w-4" />,
+                "Temp",
+                weather?.temp_c != null ? `${Math.round(weather.temp_c)}°` : "—",
+                "C",
+              )}
+              {stat(
+                <Wind className="h-4 w-4" />,
+                "Wind",
+                weather?.wind_speed_kmh != null
+                  ? `${compass(weather.wind_direction_deg)} ${Math.round(toKt(weather.wind_speed_kmh))}`
+                  : "—",
+                gustKt != null && windKt != null && gustKt > windKt + 3
+                  ? `G${Math.round(gustKt)}kt`
+                  : "kt",
+              )}
+              {stat(<Eye className="h-4 w-4" />, "Visibility", visKm ?? "—", "km")}
+              {stat(
+                <Cloud className="h-4 w-4" />,
+                "Sky",
+                wxLabel(weather?.weather_code),
+                weather?.cloud_cover_pct != null ? `${Math.round(weather.cloud_cover_pct)}%` : undefined,
+              )}
+              {weather?.dew_point_c != null && stat(
+                <CloudFog className="h-4 w-4" />,
+                "Dew pt",
+                `${Math.round(weather.dew_point_c)}°`,
+                dewSpread != null ? `Δ${dewSpread.toFixed(1)}` : "C",
+              )}
+              {weather?.humidity_pct != null && stat(
+                <Droplets className="h-4 w-4" />,
+                "Humidity",
+                `${Math.round(weather.humidity_pct)}`,
+                "%",
+              )}
+              {weather?.precipitation_probability_pct != null && stat(
+                <CloudRain className="h-4 w-4" />,
+                "Precip prob",
+                `${Math.round(weather.precipitation_probability_pct)}`,
+                "%",
+              )}
+              {weather?.pressure_hpa != null && stat(
+                <Gauge className="h-4 w-4" />,
+                "QNH",
+                `${Math.round(weather.pressure_hpa)}`,
+                "hPa",
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 text-[10px] text-emerald-400 ml-auto">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="uppercase tracking-widest">Live · {weather?.source ?? "—"}</span>
+            </div>
           </div>
-          {alerts.map((a, i) => (
-            <span
-              key={i}
-              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[11px] font-medium ${a.cls}`}
-            >
-              {a.icon}
-              {a.label}
-            </span>
-          ))}
+
+          {alerts.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-white/40">
+                <AlertTriangle className="h-3 w-3" /> Ops alerts
+              </div>
+              {alerts.map((a, i) => (
+                <span
+                  key={i}
+                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[11px] font-medium ${a.cls}`}
+                >
+                  {a.icon}
+                  {a.label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
