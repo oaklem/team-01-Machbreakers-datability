@@ -1,0 +1,216 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.129 0.042 264.695);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.129 0.042 264.695);
+  --primary: oklch(0.208 0.042 265.755);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: oklch(0.208 0.042 265.755);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --accent-foreground: oklch(0.208 0.042 265.755);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.704 0.04 256.788);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
+
+/* ClearPath Day-mode overrides — recolor hardcoded dark surfaces when
+   `light-mode` is on <html>, without rewriting every component. */
+html.light-mode {
+  color-scheme: light;
+  background-color: #eef2f7;
+}
+html.light-mode body {
+  background-color: #eef2f7;
+  color: #0b1628;
+}
+
+html.light-mode .bg-\[\#0B1628\],
+html.light-mode .bg-\[\#081020\],
+html.light-mode .bg-\[\#06101f\],
+html.light-mode .bg-\[\#0A1426\],
+html.light-mode .bg-\[\#0a1a2f\] {
+  background-color: #eef2f7 !important;
+}
+html.light-mode .bg-\[\#081020\]\/60 {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+html.light-mode .bg-\[\#0F1D33\],
+html.light-mode .bg-\[\#0E1B33\],
+html.light-mode .bg-\[\#13294A\],
+html.light-mode .bg-\[\#13243d\],
+html.light-mode .bg-\[\#0f2540\],
+html.light-mode .bg-\[\#1f2937\],
+html.light-mode .bg-\[\#1e3a5f\] {
+  background-color: #ffffff !important;
+}
+
+html.light-mode .text-white { color: #0b1628 !important; }
+html.light-mode .text-white\/90 { color: rgba(11, 22, 40, 0.9) !important; }
+html.light-mode .text-white\/85 { color: rgba(11, 22, 40, 0.85) !important; }
+html.light-mode .text-white\/80 { color: rgba(11, 22, 40, 0.8) !important; }
+html.light-mode .text-white\/75 { color: rgba(11, 22, 40, 0.75) !important; }
+html.light-mode .text-white\/70 { color: rgba(11, 22, 40, 0.72) !important; }
+html.light-mode .text-white\/65 { color: rgba(11, 22, 40, 0.68) !important; }
+html.light-mode .text-white\/60 { color: rgba(11, 22, 40, 0.65) !important; }
+html.light-mode .text-white\/55 { color: rgba(11, 22, 40, 0.6) !important; }
+html.light-mode .text-white\/50 { color: rgba(11, 22, 40, 0.58) !important; }
+html.light-mode .text-white\/40 { color: rgba(11, 22, 40, 0.5) !important; }
+html.light-mode .text-white\/30 { color: rgba(11, 22, 40, 0.42) !important; }
+html.light-mode .text-white\/20 { color: rgba(11, 22, 40, 0.35) !important; }
+html.light-mode .text-\[\#94a3b8\],
+html.light-mode .text-\[\#64748b\],
+html.light-mode .text-\[\#64748B\],
+html.light-mode .text-\[\#9ca3af\],
+html.light-mode .text-\[\#6b7280\],
+html.light-mode .text-\[\#475569\] {
+  color: #475569 !important;
+}
+
+html.light-mode .border-white\/5 { border-color: rgba(11, 22, 40, 0.06) !important; }
+html.light-mode .border-white\/10 { border-color: rgba(11, 22, 40, 0.1) !important; }
+html.light-mode .border-white\/15 { border-color: rgba(11, 22, 40, 0.12) !important; }
+html.light-mode .border-white\/20 { border-color: rgba(11, 22, 40, 0.15) !important; }
+
+html.light-mode .bg-white\/5 { background-color: rgba(11, 22, 40, 0.04) !important; }
+html.light-mode .bg-white\/10 { background-color: rgba(11, 22, 40, 0.06) !important; }
+html.light-mode .bg-white\/15 { background-color: rgba(11, 22, 40, 0.08) !important; }
+html.light-mode .hover\:bg-white\/5:hover { background-color: rgba(11, 22, 40, 0.05) !important; }
+html.light-mode .hover\:bg-white\/10:hover { background-color: rgba(11, 22, 40, 0.07) !important; }
+
+html.light-mode .bg-\[\#ffffff10\] { background-color: rgba(11, 22, 40, 0.06) !important; }
+html.light-mode .bg-\[\#ffffff20\] { background-color: rgba(11, 22, 40, 0.1) !important; }
+
+html.light-mode .shadow-2xl {
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.15) !important;
+}
